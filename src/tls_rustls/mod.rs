@@ -175,6 +175,7 @@ impl RustlsConfig {
     ///
     /// The private key must be DER-encoded ASN.1 in either PKCS#8 or PKCS#1 format.
     pub async fn from_der(cert: Vec<Vec<u8>>, key: Vec<u8>) -> io::Result<Self> {
+        let _ = rustls::crypto::ring::default_provider().install_default();
         let server_config = spawn_blocking(|| config_from_der(cert, key))
             .await
             .unwrap()?;
@@ -199,6 +200,7 @@ impl RustlsConfig {
     ///
     /// Contents of certificate file and private key file must be in PEM format.
     pub async fn from_pem_file(cert: impl AsRef<Path>, key: impl AsRef<Path>) -> io::Result<Self> {
+        let _ = rustls::crypto::ring::default_provider().install_default();
         let server_config = config_from_pem_file(cert, key).await?;
         let inner = Arc::new(ArcSwap::from_pointee(server_config));
 
@@ -237,6 +239,7 @@ impl RustlsConfig {
         chain: impl AsRef<Path>,
         key: impl AsRef<Path>,
     ) -> io::Result<Self> {
+        let _ = rustls::crypto::ring::default_provider().install_default();
         let server_config = config_from_pem_chain_file(chain, key).await?;
         let inner = Arc::new(ArcSwap::from_pointee(server_config));
 
